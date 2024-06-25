@@ -1,8 +1,11 @@
 package com.project.realtime_collaborative_doc_editing.service;
 
-import com.project.realtime_collaborative_doc_editing.dto.AuthenticationResponse;
+import com.project.realtime_collaborative_doc_editing.common.BaseResponse;
 import com.project.realtime_collaborative_doc_editing.dto.LoginDto;
 import com.project.realtime_collaborative_doc_editing.dto.UserDto;
+import com.project.realtime_collaborative_doc_editing.dto.UserResponseDto;
+import com.project.realtime_collaborative_doc_editing.exceptions.InvalidCredentials;
+import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFound;
 import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,30 +32,40 @@ public class UserServiceIml implements UserService
     return userRepository.save(user);
   }
 
-  public AuthenticationResponse registerUser(UserDto userDto)
+  public BaseResponse registerUser(UserDto userDto)
   {
+    BaseResponse baseResponse = new BaseResponse();
     String email = userDto.getEmail();
     String username = userDto.getUsername();
     Optional<User> userOpt = userRepository.findByEmail(email);
     if(Objects.isNull(userOpt)){
-      throw new RuntimeException("User with email "+userDto.getEmail()+" is already exists");
+      throw new UserNotFound("User with email "+userDto.getEmail()+" is already exists",HttpStatus.NOT_FOUND);
     }
-    if(userRepository.findByUsername(userDto.getFirstName()) != null)
+    Optional<User> userOpt1 = userRepository.findByUsername(username);
+
+    if(userOpt1.isPresent())
     {
-      throw new RuntimeException("User already exists");
+      throw new UserNotFound("User already exists with username : "+userDto.getUsername(),HttpStatus.BAD_REQUEST);
     }
 
     User user = new User();
     user.setUsername(userDto.getUsername());
     user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-    //user.setPassword(new PassuserDto.getPassword());
     user.setEmail(userDto.getEmail());
     user.setFirstName(userDto.getFirstName());
     user.setRole(userDto.getRole());
     userRepository.save(user);
-    String jwtToken = jwtService.generateToken(user);
-    return AuthenticationResponse.builder().accessToken(jwtToken).build();
 
+    String jwtToken = jwtService.generateToken(user);
+    //return AuthenticationResponse.builder().accessToken(jwtToken).build();
+
+    UserResponseDto userResponseDto = userToUserResponseDto(userDto);
+    baseResponse.setMessage("Registration Successful");
+    baseResponse.setSuccess(true);
+    baseResponse.setStatusCode(HttpStatus.CREATED.toString());
+    baseResponse.setPayload(userResponseDto);
+
+    return baseResponse;
   }
 
 
@@ -63,10 +77,20 @@ public class UserServiceIml implements UserService
     }
     User user = userOpt.get();
     if (!user.getPassword().equals(loginDto.getPassword())) {
-      throw new RuntimeException("Invalid password");
+      throw new InvalidCredentials("Invalid Credentials",HttpStatus.FORBIDDEN);
     }
     String jwtToken = jwtService.generateToken(user);
     return new ResponseEntity<>("accessToken : "+jwtToken, HttpStatus.OK);
+  }
+
+  private UserResponseDto userToUserResponseDto(UserDto userDto){
+    UserResponseDto userResponseDto = new UserResponseDto();
+    userResponseDto.setRole(userDto.getRole());
+    userResponseDto.setEmail(userDto.getEmail());
+    userResponseDto.setUsername(userDto.getUsername());
+    userResponseDto.setFirstName(userDto.getFirstName());
+    userResponseDto.setCreatedAt(new Date());
+    return userResponseDto;
   }
 
 }
