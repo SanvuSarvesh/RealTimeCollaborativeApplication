@@ -28,19 +28,14 @@ public class UserController
 
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse>  register(@RequestBody UserDto userDto){
-    System.out.println("----------- -- -- > inside the controller");
-    AuthenticationResponse user = userServiceIml.registerUser(userDto);
-    //AuthenticationResponse authResponse = userServiceIml.registerUser(userDto);
-    return  ResponseEntity.ok(user);
-    //return "User Registered Successfully with username: " + user.getEmail();
+    AuthenticationResponse accessToken = userServiceIml.registerUser(userDto);
+    return  ResponseEntity.ok(accessToken);
   }
 
 
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody LoginDto request
-  ) {
-    System.out.println("---------------- > inside the controller");
+  public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody LoginDto request) {
     return ResponseEntity.ok(userServiceIml.loginUser(request));
   }
+
 }

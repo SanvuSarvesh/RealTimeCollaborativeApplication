@@ -8,6 +8,9 @@ import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceIml implements UserService
@@ -22,26 +25,24 @@ public class UserServiceIml implements UserService
 
   public AuthenticationResponse registerUser(UserDto userDto)
   {
-    System.out.println("----------- -- -- > inside the service");
+    String email = userDto.getEmail();
+    String username = userDto.getUsername();
+    Optional<User> userOpt = userRepository.findByEmail(email);
+    if(Objects.isNull(userOpt)){
+      throw new RuntimeException("User with email "+userDto.getEmail()+" is already exists");
+    }
     if(userRepository.findByUsername(userDto.getFirstName()) != null)
     {
-      System.out.println("----------- -- -- > inside the repository-1");
       throw new RuntimeException("User already exists");
     }
 
-    if(userRepository.findByEmail(userDto.getEmail()) == null)
-    {
-      System.out.println("----------- -- -- > inside the repository-2");
-      throw new RuntimeException("Email already exists");
-    }
-
     User user = new User();
-    //user.setUsername(userDto.getUsername());
+    user.setUsername(userDto.getUsername());
     user.setPassword(userDto.getPassword());
     user.setEmail(userDto.getEmail());
     user.setFirstName(userDto.getFirstName());
     user.setRole(userDto.getRole());
-    System.out.println("----------- -- -- > inside the repository-3");
+    userRepository.save(user);
     String jwtToken = jwtService.generateToken(user);
     return AuthenticationResponse.builder().accessToken(jwtToken).build();
 
@@ -51,19 +52,17 @@ public class UserServiceIml implements UserService
   @Override
   public AuthenticationResponse loginUser(LoginDto loginDto)
   {
-    User user = userRepository.findByUsername(loginDto.getEmail());
+    Optional<User> userOpt = userRepository.findByEmail(loginDto.getEmail());
 
-    if (user == null)
-    {
+    if (Objects.isNull(userOpt)) {
       throw new RuntimeException("User not found");
     }
-
-    if (!user.getPassword().equals(loginDto.getPassword()))
-    {
+    User user = userOpt.get();
+    if (!user.getPassword().equals(loginDto.getPassword())) {
       throw new RuntimeException("Invalid password");
     }
-return null;
-//    return jwtTokenProvider.generateToken(user.getUsername());
+    String jwtToken = jwtService.generateToken(user);
+    return AuthenticationResponse.builder().accessToken(jwtToken).build();
   }
 
 }

@@ -39,7 +39,6 @@ public class ApplicationConfig {
   }
 
   @Bean
-  //@Override
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
     return config.getAuthenticationManager();
   }

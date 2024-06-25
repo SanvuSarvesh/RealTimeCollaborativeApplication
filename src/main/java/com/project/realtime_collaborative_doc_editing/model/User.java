@@ -11,7 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -25,10 +26,17 @@ public class User implements UserDetails
 
   @Id
   private String id;
+
   private String firstName;
+
+  @Column(unique = true)
   private String username;
+
   private String password;
+
+  @Column(unique = true)
   private String email;
+
   @Enumerated(EnumType.STRING)
   private Role role;
 
@@ -43,6 +51,7 @@ public class User implements UserDetails
   {
     return email;
   }
+
 
   @Override
   public boolean isAccountNonExpired()
