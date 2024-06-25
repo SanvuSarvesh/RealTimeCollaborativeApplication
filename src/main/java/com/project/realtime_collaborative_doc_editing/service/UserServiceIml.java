@@ -6,6 +6,10 @@ import com.project.realtime_collaborative_doc_editing.dto.UserDto;
 import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -17,7 +21,8 @@ public class UserServiceIml implements UserService
 {
   private final UserRepository userRepository;
   private final JwtService jwtService;
-
+  private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
 
   public User saveUser(User user) {
     return userRepository.save(user);
@@ -38,7 +43,8 @@ public class UserServiceIml implements UserService
 
     User user = new User();
     user.setUsername(userDto.getUsername());
-    user.setPassword(userDto.getPassword());
+    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+    //user.setPassword(new PassuserDto.getPassword());
     user.setEmail(userDto.getEmail());
     user.setFirstName(userDto.getFirstName());
     user.setRole(userDto.getRole());
@@ -50,10 +56,8 @@ public class UserServiceIml implements UserService
 
 
   @Override
-  public AuthenticationResponse loginUser(LoginDto loginDto)
-  {
+  public ResponseEntity<String> loginUser(LoginDto loginDto) {
     Optional<User> userOpt = userRepository.findByEmail(loginDto.getEmail());
-
     if (Objects.isNull(userOpt)) {
       throw new RuntimeException("User not found");
     }
@@ -62,7 +66,7 @@ public class UserServiceIml implements UserService
       throw new RuntimeException("Invalid password");
     }
     String jwtToken = jwtService.generateToken(user);
-    return AuthenticationResponse.builder().accessToken(jwtToken).build();
+    return new ResponseEntity<>("accessToken : "+jwtToken, HttpStatus.OK);
   }
 
 }

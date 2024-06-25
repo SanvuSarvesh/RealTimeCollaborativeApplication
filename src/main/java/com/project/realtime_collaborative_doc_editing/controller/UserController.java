@@ -8,6 +8,11 @@ import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.service.UserServiceIml;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +25,7 @@ public class UserController
 {
 
   private final UserServiceIml userServiceIml;
-
+  private final AuthenticationManager authenticationManager;
   @PostMapping("/save")
   public User saveUser(@RequestBody User user) {
     return userServiceIml.saveUser(user);
@@ -34,8 +39,17 @@ public class UserController
 
 
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody LoginDto request) {
-    return ResponseEntity.ok(userServiceIml.loginUser(request));
+  public ResponseEntity<String> authenticate(@RequestBody LoginDto loginDto) {
+    try {
+      Authentication authentication = authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+      );
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+      return ResponseEntity.ok("Login successful");
+    } catch (AuthenticationException e) {
+      return ResponseEntity.status(401).body("Login failed: " + e.getMessage());
+    }
+
   }
 
 }
