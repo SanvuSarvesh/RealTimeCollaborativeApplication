@@ -1,6 +1,6 @@
 package com.project.realtime_collaborative_doc_editing.exceptions.controller;
 
-import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFound;
+import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.exceptions.apiError.ApiError;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -41,8 +41,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(UserNotFound.class)
-    protected ResponseEntity<Object> handleM3AdaptorUtilException(UserNotFound ex) {
+    @ExceptionHandler(UserNotFoundException.class)
+    protected ResponseEntity<Object> handleM3AdaptorUtilException(UserNotFoundException ex) {
         ApiError apiError;
         if (ex.getHttpStatus() != null) apiError = new ApiError(ex.getHttpStatus());
         else apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR);
