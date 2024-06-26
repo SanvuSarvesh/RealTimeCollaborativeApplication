@@ -98,7 +98,31 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public BaseResponse getDocumentByDocumentTitle(String documentName) {
-        return null;
+        BaseResponse baseResponse = new BaseResponse();
+        String accessToken = httpServletRequest.getHeader("Authorization");
+        String tokenWithOutBearer = accessToken.substring(7);
+
+        String userName = jwtService.extractUsername(tokenWithOutBearer);
+        Optional<User> userOpt = userRepository.findByEmail(userName);
+        if(userOpt.isEmpty()){
+            throw new UserNotFoundException("User not found with username : "+userName,HttpStatus.NOT_FOUND);
+        }
+        User user = userOpt.get();
+        String emailId = user.getEmail();
+        Optional<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentTitle(documentName);
+        if(documentDetailsOpt.isEmpty()){
+            throw new RuntimeException("Document not found.");
+        }
+        DocumentDetails documentDetails = documentDetailsOpt.get();
+        if(!documentDetails.getUsersCanView().contains(emailId)){
+            throw new PermissionNotGrantedException("You do not have the permission to view this document.",HttpStatus.FORBIDDEN);
+        }
+        baseResponse.setMessage("Document has been fetch.");
+        baseResponse.setSuccess(true);
+        baseResponse.setPayload(documentDetails);
+        baseResponse.setStatusCode(HttpStatus.OK.toString());
+
+        return baseResponse;
     }
 
     @Override
@@ -109,6 +133,35 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public BaseResponse deleteDocument(String documentId) {
         return null;
+    }
+
+    @Override
+    public BaseResponse searchDocumentsByKeyword(String keyword) {
+        BaseResponse baseResponse = new BaseResponse();
+        String accessToken = httpServletRequest.getHeader("Authorization");
+        String tokenWithOutBearer = accessToken.substring(7);
+
+        String userName = jwtService.extractUsername(tokenWithOutBearer);
+        Optional<User> userOpt = userRepository.findByEmail(userName);
+        if(userOpt.isEmpty()){
+            throw new UserNotFoundException("User not found with username : "+userName,HttpStatus.NOT_FOUND);
+        }
+        User user = userOpt.get();
+        String emailId = user.getEmail();
+        List<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentTitleContainingIgnoreCase(keyword);
+        if(documentDetailsOpt.isEmpty()){
+            throw new RuntimeException("Document not found.");
+        }
+//        DocumentDetails documentDetails = documentDetailsOpt;
+//        if(!documentDetails.getUsersCanView().contains(emailId)){
+//            throw new PermissionNotGrantedException("You do not have the permission to view this document.",HttpStatus.FORBIDDEN);
+//        }
+        baseResponse.setMessage("Document has been fetch.");
+        baseResponse.setSuccess(true);
+        baseResponse.setPayload(documentDetailsOpt);
+        baseResponse.setStatusCode(HttpStatus.OK.toString());
+
+        return baseResponse;
     }
 
     private DocumentDetails documentDtoToDocument(DocumentReqDto documentReqDto, String username){

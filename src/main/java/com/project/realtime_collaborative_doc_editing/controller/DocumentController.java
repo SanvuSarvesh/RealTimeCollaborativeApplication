@@ -2,7 +2,6 @@ package com.project.realtime_collaborative_doc_editing.controller;
 
 import com.project.realtime_collaborative_doc_editing.common.BaseResponse;
 import com.project.realtime_collaborative_doc_editing.dto.DocumentReqDto;
-import com.project.realtime_collaborative_doc_editing.service.DocumentService;
 import com.project.realtime_collaborative_doc_editing.service.impl.DocumentServiceImpl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,9 @@ public class DocumentController {
         return baseResponse;
     }
 
-    @GetMapping("/get-by-title")
-    public BaseResponse getDocumentByDocumentTitle(){
-        BaseResponse baseResponse = new BaseResponse();
+    @GetMapping("/get-by-title/{title}")
+    public BaseResponse getDocumentByDocumentTitle(@PathVariable("title") String documentTitle){
+        BaseResponse baseResponse = documentService.getDocumentByDocumentTitle(documentTitle);
         return baseResponse;
     }
 
@@ -47,4 +46,11 @@ public class DocumentController {
         BaseResponse baseResponse = new BaseResponse();
         return baseResponse;
     }
+
+    @GetMapping("search/{keyword}")
+    public BaseResponse searchDocumentsByKeyword(@PathVariable String keyword){
+        BaseResponse baseResponse = new BaseResponse();
+        return baseResponse;
+    }
+
 }

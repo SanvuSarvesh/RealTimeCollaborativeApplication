@@ -15,4 +15,6 @@ public interface DocumentService {
 
     BaseResponse deleteDocument(String documentId);
 
+    BaseResponse searchDocumentsByKeyword(String keyword);
+
 }
