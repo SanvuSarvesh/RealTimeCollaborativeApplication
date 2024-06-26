@@ -5,7 +5,7 @@ import com.project.realtime_collaborative_doc_editing.dto.LoginDto;
 import com.project.realtime_collaborative_doc_editing.dto.UserDto;
 import com.project.realtime_collaborative_doc_editing.dto.UserResponseDto;
 import com.project.realtime_collaborative_doc_editing.exceptions.InvalidCredentials;
-import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFound;
+import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +39,13 @@ public class UserServiceIml implements UserService
     String username = userDto.getUsername();
     Optional<User> userOpt = userRepository.findByEmail(email);
     if(Objects.isNull(userOpt)){
-      throw new UserNotFound("User with email "+userDto.getEmail()+" is already exists",HttpStatus.NOT_FOUND);
+      throw new UserNotFoundException("User with email "+userDto.getEmail()+" is already exists",HttpStatus.NOT_FOUND);
     }
     Optional<User> userOpt1 = userRepository.findByUsername(username);
 
     if(userOpt1.isPresent())
     {
-      throw new UserNotFound("User already exists with username : "+userDto.getUsername(),HttpStatus.BAD_REQUEST);
+      throw new UserNotFoundException("User already exists with username : "+userDto.getUsername(),HttpStatus.BAD_REQUEST);
     }
 
     User user = new User();

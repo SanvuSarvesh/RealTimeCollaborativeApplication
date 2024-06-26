@@ -19,6 +19,9 @@ import java.util.*;
 public class JwtService {
 
   private static final String SECRET = "9a2f8c4e6b0d71f3e8b925a45747f894a3d6bc70fa8d5e21a15a6d8c3b9a0e7c";
+  private static final String JWT_USERNAME_CLAIM = "MEMBER";
+  private static final String JWT_ADMIN_CLAIM = "ADMIN";
+
   public String generateToken(UserDetails user) {
     return Jwts.builder()
         .setSubject(user.getUsername())
@@ -52,6 +55,19 @@ public class JwtService {
         .parseClaimsJws(token)
         .getBody();
   }
+
+//  public String encode(String name, boolean admin) {
+//    String token = Jwts.builder()
+//            .claim(JWT_USERNAME_CLAIM, name)
+//            .claim(JWT_ADMIN_CLAIM, admin)
+//            .setSubject(name)
+//            .setIssuer(issuer)
+//            .setIssuedAt(new Date(System.currentTimeMillis()))
+//            .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
+//            .signWith(SignatureAlgorithm.HS512, passPhrase).compact();
+//
+//    return token;
+//  }
 
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
