@@ -1,20 +1,28 @@
 package com.project.realtime_collaborative_doc_editing.controller;
 
 import com.project.realtime_collaborative_doc_editing.common.BaseResponse;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.project.realtime_collaborative_doc_editing.dto.DocumentReqDto;
+import com.project.realtime_collaborative_doc_editing.service.impl.PermissionServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/user/permission")
 public class PermissionController {
 
-    public BaseResponse allowUserToView(){
-        BaseResponse baseResponse = new BaseResponse();
+    private final PermissionServiceImpl permissionService;
+
+    @PutMapping("allow-to-view/{id}/{username}")
+    public BaseResponse allowUserToView(@PathVariable("id") String documentId, @PathVariable("username") String username){
+        BaseResponse baseResponse = permissionService.allowUserToView(documentId,username);
         return baseResponse;
     }
 
-    public BaseResponse allowUserToEdit(){
-        BaseResponse baseResponse = new BaseResponse();
+    @PutMapping("allow-to-edit/{id}/{username}")
+    public BaseResponse allowUserToEdit(@PathVariable("id") String documentId, @PathVariable("username") String username,
+                                        @RequestBody DocumentReqDto documentReqDto){
+        BaseResponse baseResponse = permissionService.allowUserToEdit(documentId,username,documentReqDto);
         return baseResponse;
     }
 
