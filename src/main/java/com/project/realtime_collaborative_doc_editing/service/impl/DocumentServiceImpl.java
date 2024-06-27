@@ -5,6 +5,7 @@ import com.project.realtime_collaborative_doc_editing.dto.DocumentReqDto;
 import com.project.realtime_collaborative_doc_editing.exceptions.PermissionNotGrantedException;
 import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.model.DocumentDetails;
+import com.project.realtime_collaborative_doc_editing.model.HistoryDetails;
 import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.DocumentRepository;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
@@ -53,6 +54,16 @@ public class DocumentServiceImpl implements DocumentService {
             userCanView.add(userName);
             documentDetails.setUsersCanEdit(userCanEdit);
             documentDetails.setUsersCanView(userCanView);
+
+            HistoryDetails historyDetails = new HistoryDetails();
+            historyDetails.setOperationType("CREATED");
+            historyDetails.setUpdatedAt(new Date());
+            historyDetails.setUpdatedBy(userName);
+
+            List<HistoryDetails> history = new ArrayList<>();
+            history.add(historyDetails);
+            documentDetails.setHistoryDetails(history);
+
             documentRepository.save(documentDetails);
             baseResponse.setPayload(documentDetails);
             baseResponse.setSuccess(true);
