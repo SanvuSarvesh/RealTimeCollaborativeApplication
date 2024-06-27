@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 
@@ -42,5 +43,7 @@ public class DocumentDetails {
     private Boolean isRequestPending;
 
     private Set<String> requestForEdit;
+
+    private List<HistoryDetails> historyDetails;
 
 }
