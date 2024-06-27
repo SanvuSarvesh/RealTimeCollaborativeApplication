@@ -10,12 +10,10 @@ public interface PermissionService {
 
     BaseResponse allowUserToEdit(String documentId, String username, DocumentReqDto documentReqDto);
 
-    BaseResponse withDrawViewPermission();
+    BaseResponse withDrawViewPermission(String documentId);
 
-    BaseResponse withEditViewPermission();
+    BaseResponse withdrawEditPermission(String documentId);
 
-    BaseResponse requestForViewAccess();
-
-    BaseResponse requestForEditAccess();
+    BaseResponse requestForAccess(String documentId);
 
 }

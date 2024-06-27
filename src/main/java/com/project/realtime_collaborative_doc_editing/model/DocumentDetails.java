@@ -37,4 +37,10 @@ public class DocumentDetails {
 
     private Set<String> usersCanView;
 
+    private Set<String> requestForView;
+
+    private Boolean isRequestPending;
+
+    private Set<String> requestForEdit;
+
 }
