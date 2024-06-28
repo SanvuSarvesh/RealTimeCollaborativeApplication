@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(POST, "/user/v1/auth/register").permitAll() // Allow everyone to access the register endpoint
                                 .requestMatchers(POST, "/user/v1/auth/authenticate").permitAll() // // Allow everyone to access the login endpoint
+                                .requestMatchers(GET, "/test/**").permitAll() // to allow all the free test APIs
                                 .requestMatchers("/user/v1/management/**").hasAnyRole(ADMIN.name(), MEMBER.name())
                                 .requestMatchers(GET, "/user/v1/management/**")
                                 .hasAnyAuthority(ADMIN_READ.name(), MEMBER_READ.name())
@@ -48,3 +49,5 @@ public class SecurityConfig {
                 .build();
     }
 }
+
+// bin/kafka-topics.sh --create --topic001 --bootstrap-server localhost:9092
