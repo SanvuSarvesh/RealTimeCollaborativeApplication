@@ -9,6 +9,5 @@ public class RealtimeCollaborativeDocEditingApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RealtimeCollaborativeDocEditingApplication.class, args);
 	}
-	
 
 }
