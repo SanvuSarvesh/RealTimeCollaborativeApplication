@@ -2,6 +2,7 @@ package com.project.realtime_collaborative_doc_editing.controller;
 
 import com.project.realtime_collaborative_doc_editing.config.KafkaProducer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ public class TestController {
         kafkaProducer.sendMessage(message);
         return new ResponseEntity<>("Message sent to topic.", HttpStatus.OK);
     }
+
 
 }
 

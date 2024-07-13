@@ -3,8 +3,9 @@ package com.project.realtime_collaborative_doc_editing.controller;
 
 import com.project.realtime_collaborative_doc_editing.common.BaseResponse;
 import com.project.realtime_collaborative_doc_editing.dto.LoginDto;
+import com.project.realtime_collaborative_doc_editing.dto.UpdatePasswordReqDto;
 import com.project.realtime_collaborative_doc_editing.dto.UserDto;
-import com.project.realtime_collaborative_doc_editing.model.User;
+import com.project.realtime_collaborative_doc_editing.model.UserProfile;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import com.project.realtime_collaborative_doc_editing.service.JwtService;
 import com.project.realtime_collaborative_doc_editing.service.UserServiceIml;
@@ -16,10 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -35,7 +33,7 @@ public class UserController
   private final UserRepository userRepository;
 
   @PostMapping("/save")
-  public User saveUser(@RequestBody User user) {
+  public UserProfile saveUser(@RequestBody UserProfile user) {
     return userServiceIml.saveUser(user);
   }
 
@@ -54,7 +52,7 @@ public class UserController
               new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
       );
       SecurityContextHolder.getContext().setAuthentication(authentication);
-      Optional<User> user = userRepository.findByEmail(loginDto.getEmail());
+      Optional<UserProfile> user = userRepository.findByEmail(loginDto.getEmail());
       String accessToken = jwtService.generateToken(user.get());
 
        baseResponse.setMessage("Login successful.");
@@ -74,6 +72,18 @@ public class UserController
 
     }
 
+  }
+
+  @PostMapping("/forget-password")
+  public ResponseEntity<BaseResponse>  forgetPassword(@RequestParam String emailId){
+    BaseResponse accessToken = new BaseResponse();
+    return  ResponseEntity.ok(accessToken);
+  }
+
+  @PutMapping("/update-password")
+  public ResponseEntity<BaseResponse>  updatePassword(@RequestBody UpdatePasswordReqDto updatePasswordReqDto){
+    BaseResponse baseResponse = userServiceIml.updatePassword(updatePasswordReqDto);
+    return new ResponseEntity<>(baseResponse,HttpStatus.OK);
   }
 
 }

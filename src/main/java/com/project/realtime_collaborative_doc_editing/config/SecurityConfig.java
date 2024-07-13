@@ -15,8 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static com.project.realtime_collaborative_doc_editing.model.Permission.*;
 import static com.project.realtime_collaborative_doc_editing.model.Role.ADMIN;
 import static com.project.realtime_collaborative_doc_editing.model.Role.MEMBER;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 
@@ -37,6 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(POST, "/user/v1/auth/register").permitAll() // Allow everyone to access the register endpoint
                                 .requestMatchers(POST, "/user/v1/auth/authenticate").permitAll() // // Allow everyone to access the login endpoint
+                                .requestMatchers(PUT,"/user/v1/auth/update-password").permitAll() // Allow user to update his/her password
                                 .requestMatchers(GET, "/test/**").permitAll() // to allow all the free test APIs
                                 .requestMatchers("/user/v1/management/**").hasAnyRole(ADMIN.name(), MEMBER.name())
                                 .requestMatchers(GET, "/user/v1/management/**")

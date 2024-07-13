@@ -1,7 +1,6 @@
 package com.project.realtime_collaborative_doc_editing.config;
 
 import com.project.realtime_collaborative_doc_editing.exceptions.RequestFilterException;
-import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import com.project.realtime_collaborative_doc_editing.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
 
 
 @Component

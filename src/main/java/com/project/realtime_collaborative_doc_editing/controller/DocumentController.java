@@ -25,6 +25,7 @@ public class DocumentController {
 
     @GetMapping("/get-by-id/{id}")
     public BaseResponse getDocumentById(@PathVariable("id") String documentID){
+        System.out.println("---> Inside the document controller : get by Id api");
         BaseResponse baseResponse = documentService.getDocumentById(documentID);
         return baseResponse;
     }

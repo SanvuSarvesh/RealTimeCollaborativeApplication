@@ -6,7 +6,7 @@ import com.project.realtime_collaborative_doc_editing.exceptions.PermissionNotGr
 import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.model.DocumentDetails;
 import com.project.realtime_collaborative_doc_editing.model.HistoryDetails;
-import com.project.realtime_collaborative_doc_editing.model.User;
+import com.project.realtime_collaborative_doc_editing.model.UserProfile;
 import com.project.realtime_collaborative_doc_editing.repository.DocumentRepository;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import com.project.realtime_collaborative_doc_editing.service.DocumentService;
@@ -42,11 +42,11 @@ public class DocumentServiceImpl implements DocumentService {
         String tokenWithOutBearer = accessToken.substring(7);
 
         String userName = jwtService.extractUsername(tokenWithOutBearer);
-        Optional<User> userOpt = userRepository.findByEmail(userName);
+        Optional<UserProfile> userOpt = userRepository.findByEmail(userName);
         if(Objects.isNull(userOpt)){
             throw new UserNotFoundException("User Not found.",HttpStatus.NOT_FOUND);
         }
-        User user = userOpt.get();
+        UserProfile user = userOpt.get();
         Set<String> userCanEdit = new HashSet<>();
         Set<String> userCanView = new HashSet<>();
         boolean isTokenValid = jwtService.isTokenValid(tokenWithOutBearer,user);
@@ -84,22 +84,25 @@ public class DocumentServiceImpl implements DocumentService {
     public BaseResponse getDocumentById(String documentId) {
         BaseResponse baseResponse = new BaseResponse();
         String accessToken = httpServletRequest.getHeader("Authorization");
+        System.out.println("-----> token : "+accessToken);
         String tokenWithOutBearer = accessToken.substring(7);
-
+        System.out.println("-----> tokenWithOutBearer : "+tokenWithOutBearer);
         String userName = jwtService.extractUsername(tokenWithOutBearer);
-        Optional<User> userOpt = userRepository.findByEmail(userName);
+        Optional<UserProfile> userOpt = userRepository.findByEmail(userName);
         if(userOpt.isEmpty()){
             throw new UserNotFoundException("User not found with username : "+userName,HttpStatus.NOT_FOUND);
         }
-        User user = userOpt.get();
+        UserProfile user = userOpt.get();
         String emailId = user.getEmail();
         DocumentDetails details = redisService.getFromRedis(documentId, DocumentDetails.class);
         if(!Objects.isNull(details)){
+            System.out.println("----------> Response from DB Cache.");
             baseResponse.setMessage("Document has been fetch.");
             baseResponse.setSuccess(true);
             baseResponse.setPayload(details);
             baseResponse.setStatusCode(HttpStatus.OK.toString());
         }else{
+            System.out.println("----------> API is making a Db call.");
             Optional<DocumentDetails> documentDetailsOpt = documentRepository.findById(documentId);
             if(documentDetailsOpt.isEmpty()){
                 throw new RuntimeException("Document not found.");
@@ -129,11 +132,11 @@ public class DocumentServiceImpl implements DocumentService {
         String tokenWithOutBearer = accessToken.substring(7);
 
         String userName = jwtService.extractUsername(tokenWithOutBearer);
-        Optional<User> userOpt = userRepository.findByEmail(userName);
+        Optional<UserProfile> userOpt = userRepository.findByEmail(userName);
         if(userOpt.isEmpty()){
             throw new UserNotFoundException("User not found with username : "+userName,HttpStatus.NOT_FOUND);
         }
-        User user = userOpt.get();
+        UserProfile user = userOpt.get();
         String emailId = user.getEmail();
         Optional<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentTitle(documentName);
         if(documentDetailsOpt.isEmpty()){
@@ -168,11 +171,11 @@ public class DocumentServiceImpl implements DocumentService {
         String tokenWithOutBearer = accessToken.substring(7);
 
         String userName = jwtService.extractUsername(tokenWithOutBearer);
-        Optional<User> userOpt = userRepository.findByEmail(userName);
+        Optional<UserProfile> userOpt = userRepository.findByEmail(userName);
         if(userOpt.isEmpty()){
             throw new UserNotFoundException("User not found with username : "+userName,HttpStatus.NOT_FOUND);
         }
-        User user = userOpt.get();
+        UserProfile user = userOpt.get();
         String emailId = user.getEmail();
         List<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentTitleContainingIgnoreCase(keyword);
         if(documentDetailsOpt.isEmpty()){
