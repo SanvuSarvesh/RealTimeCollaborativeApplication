@@ -8,10 +8,12 @@ import com.project.realtime_collaborative_doc_editing.exceptions.InvalidCredenti
 import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.model.User;
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
+import com.project.realtime_collaborative_doc_editing.service.impl.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class UserServiceIml implements UserService
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
+  private final RedisService redisService;
 
   public User saveUser(User user) {
     return userRepository.save(user);
@@ -37,6 +40,7 @@ public class UserServiceIml implements UserService
     BaseResponse baseResponse = new BaseResponse();
     String email = userDto.getEmail();
     String username = userDto.getUsername();
+
     Optional<User> userOpt = userRepository.findByEmail(email);
     if(Objects.isNull(userOpt)){
       throw new UserNotFoundException("User with email "+userDto.getEmail()+" is already exists",HttpStatus.NOT_FOUND);

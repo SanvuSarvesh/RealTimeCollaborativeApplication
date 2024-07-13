@@ -32,6 +32,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
 
+    private final RedisService redisService;
+
     @Override
     public BaseResponse createNewDocument(DocumentReqDto documentReqDto) {
         BaseResponse baseResponse = new BaseResponse();
@@ -91,20 +93,33 @@ public class DocumentServiceImpl implements DocumentService {
         }
         User user = userOpt.get();
         String emailId = user.getEmail();
-        Optional<DocumentDetails> documentDetailsOpt = documentRepository.findById(documentId);
-        if(documentDetailsOpt.isEmpty()){
-            throw new RuntimeException("Document not found.");
-        }
-        DocumentDetails documentDetails = documentDetailsOpt.get();
-        if(!documentDetails.getUsersCanView().contains(emailId)){
-            throw new PermissionNotGrantedException("You do not have the permission to view this document.",HttpStatus.FORBIDDEN);
-        }
-        baseResponse.setMessage("Document has been fetch.");
-        baseResponse.setSuccess(true);
-        baseResponse.setPayload(documentDetails);
-        baseResponse.setStatusCode(HttpStatus.OK.toString());
+        DocumentDetails details = redisService.getFromRedis(documentId, DocumentDetails.class);
+        if(!Objects.isNull(details)){
+            baseResponse.setMessage("Document has been fetch.");
+            baseResponse.setSuccess(true);
+            baseResponse.setPayload(details);
+            baseResponse.setStatusCode(HttpStatus.OK.toString());
+        }else{
+            Optional<DocumentDetails> documentDetailsOpt = documentRepository.findById(documentId);
+            if(documentDetailsOpt.isEmpty()){
+                throw new RuntimeException("Document not found.");
+            }
+            if(!Objects.isNull(documentDetailsOpt)){
+                redisService.setIntoRedis(documentId, documentDetailsOpt.get(),(long)30*60*60);
+            }
+            DocumentDetails documentDetails = documentDetailsOpt.get();
+            if(!documentDetails.getUsersCanView().contains(emailId)){
+                throw new PermissionNotGrantedException("You do not have the permission to view this document.",HttpStatus.FORBIDDEN);
+            }
 
-        return baseResponse;
+            baseResponse.setMessage("Document has been fetch.");
+            baseResponse.setSuccess(true);
+            baseResponse.setPayload(documentDetails);
+            baseResponse.setStatusCode(HttpStatus.OK.toString());
+
+            return baseResponse;
+        }
+        throw new RuntimeException("Something went wrong, it was not a reachable statement.");
     }
 
     @Override
