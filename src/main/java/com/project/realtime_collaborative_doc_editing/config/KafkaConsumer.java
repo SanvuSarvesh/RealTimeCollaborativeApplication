@@ -18,7 +18,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "JsonTopic001", groupId = "jsonGroup001")
     public void consumeJsonMessage(DocumentDetails message){
-        LOGGER.info("Message Received : {}",message);
+        LOGGER.info("Json Message Received : {}",message);
     }
 
 }

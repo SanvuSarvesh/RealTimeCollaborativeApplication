@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(POST, "/user/v1/auth/register").permitAll() // Allow everyone to access the register endpoint
                                 .requestMatchers(POST, "/user/v1/auth/authenticate").permitAll() // // Allow everyone to access the login endpoint
-                                .requestMatchers(PUT,"/user/v1/auth/update-password").permitAll() // Allow user to update his/her password
+                                .requestMatchers(PUT, "/user/v1/auth/update-password").permitAll() // Allow user to update his/her password
                                 .requestMatchers(GET, "/test/**").permitAll() // to allow all the free test APIs
                                 .requestMatchers("/user/v1/management/**").hasAnyRole(ADMIN.name(), MEMBER.name())
                                 .requestMatchers(GET, "/user/v1/management/**")
@@ -51,3 +51,4 @@ public class SecurityConfig {
 }
 
 // bin/kafka-topics.sh --create --topic001 --bootstrap-server localhost:9092
+// .requestMatchers("document/**").permitAll() // need to remove right after the testing

@@ -84,9 +84,7 @@ public class DocumentServiceImpl implements DocumentService {
     public BaseResponse getDocumentById(String documentId) {
         BaseResponse baseResponse = new BaseResponse();
         String accessToken = httpServletRequest.getHeader("Authorization");
-        System.out.println("-----> token : "+accessToken);
         String tokenWithOutBearer = accessToken.substring(7);
-        System.out.println("-----> tokenWithOutBearer : "+tokenWithOutBearer);
         String userName = jwtService.extractUsername(tokenWithOutBearer);
         Optional<UserProfile> userOpt = userRepository.findByEmail(userName);
         if(userOpt.isEmpty()){
@@ -95,8 +93,9 @@ public class DocumentServiceImpl implements DocumentService {
         UserProfile user = userOpt.get();
         String emailId = user.getEmail();
         DocumentDetails details = redisService.getFromRedis(documentId, DocumentDetails.class);
+        System.out.println("Details from redis : "+details);
         if(!Objects.isNull(details)){
-            System.out.println("----------> Response from DB Cache.");
+            System.out.println("----------> Response from Redis Cache.");
             baseResponse.setMessage("Document has been fetch.");
             baseResponse.setSuccess(true);
             baseResponse.setPayload(details);
@@ -109,6 +108,7 @@ public class DocumentServiceImpl implements DocumentService {
             }
             if(!Objects.isNull(documentDetailsOpt)){
                 redisService.setIntoRedis(documentId, documentDetailsOpt.get(),(long)30*60*60);
+                System.out.println("Response has been set into Redis ");
             }
             DocumentDetails documentDetails = documentDetailsOpt.get();
             if(!documentDetails.getUsersCanView().contains(emailId)){

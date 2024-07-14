@@ -67,6 +67,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     //Verify whether request has Authorization header and it has Bearer in it
     final String authHeader = request.getHeader("Authorization");
+    System.out.println("token in JwtAuthFilter : "+authHeader);
     final String jwt;
     final String email;
     if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
@@ -109,7 +110,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     return (HttpServletRequest) request;
   }
 
-  //Verify if it is whitelisted path and if yes dont do anything
+  //Verify if it is whitelisted path and if yes don't do anything
   @Override
   protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
     return request.getServletPath().contains("/user/v1/auth");
