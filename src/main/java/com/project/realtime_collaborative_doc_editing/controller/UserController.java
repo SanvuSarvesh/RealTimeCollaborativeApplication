@@ -10,6 +10,7 @@ import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import com.project.realtime_collaborative_doc_editing.service.JwtService;
 import com.project.realtime_collaborative_doc_editing.service.UserServiceIml;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,8 +25,9 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user/v1/auth")
-public class UserController
-{
+public class UserController {
+
+  private final org.slf4j.Logger Logger = LoggerFactory.getLogger(UserController.class);
 
   private final UserServiceIml userServiceIml;
   private final AuthenticationManager authenticationManager;
@@ -39,7 +41,10 @@ public class UserController
 
   @PostMapping("/register")
   public ResponseEntity<BaseResponse>  register(@RequestBody UserDto userDto){
+    long startTime = System.currentTimeMillis();
+    Logger.info("Inside the UserController : register");
     BaseResponse accessToken = userServiceIml.registerUser(userDto);
+    Logger.info("Time Taken by register : {} : "+(System.currentTimeMillis() - startTime),accessToken);
     return  ResponseEntity.ok(accessToken);
   }
 
@@ -76,13 +81,19 @@ public class UserController
 
   @PostMapping("/forget-password")
   public ResponseEntity<BaseResponse>  forgetPassword(@RequestParam String emailId){
+    long startTime = System.currentTimeMillis();
+    Logger.info("Inside the UserController : forgetPassword");
     BaseResponse accessToken = new BaseResponse();
+    Logger.info("Time Taken by forgetPassword : {} : "+(System.currentTimeMillis() - startTime),accessToken);
     return  ResponseEntity.ok(accessToken);
   }
 
   @PutMapping("/update-password")
   public ResponseEntity<BaseResponse>  updatePassword(@RequestBody UpdatePasswordReqDto updatePasswordReqDto){
+    long startTime = System.currentTimeMillis();
+    Logger.info("Inside the UserController : updatePassword");
     BaseResponse baseResponse = userServiceIml.updatePassword(updatePasswordReqDto);
+    Logger.info("Time Taken by updatePassword : {} : "+(System.currentTimeMillis() - startTime),baseResponse);
     return new ResponseEntity<>(baseResponse,HttpStatus.OK);
   }
 
