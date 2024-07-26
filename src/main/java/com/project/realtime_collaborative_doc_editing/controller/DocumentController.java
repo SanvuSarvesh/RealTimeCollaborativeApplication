@@ -35,15 +35,15 @@ public class DocumentController {
         return baseResponse;
     }
 
-    @PutMapping("/edit")
-    public BaseResponse editDocument(){
-        BaseResponse baseResponse = new BaseResponse();
+    @PutMapping("/edit/{id}")
+    public BaseResponse editDocument(@PathVariable("id") String documentId, @RequestBody DocumentReqDto documentReqDto){
+        BaseResponse baseResponse = documentService.editDocument(documentId,documentReqDto);
         return baseResponse;
     }
 
-    @PutMapping("/delete")
-    public BaseResponse deleteDocument(){
-        BaseResponse baseResponse = new BaseResponse();
+    @DeleteMapping("/delete/{id}")
+    public BaseResponse deleteDocument(@PathVariable("id") String documentId){
+        BaseResponse baseResponse = documentService.deleteDocument(documentId);
         return baseResponse;
     }
 

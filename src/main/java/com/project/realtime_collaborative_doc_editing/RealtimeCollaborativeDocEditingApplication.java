@@ -18,5 +18,3 @@ public class RealtimeCollaborativeDocEditingApplication {
 	}
 
 }
-
-// adding test comments

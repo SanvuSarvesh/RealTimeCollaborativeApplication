@@ -2,6 +2,7 @@ package com.project.realtime_collaborative_doc_editing.service.impl;
 
 import com.project.realtime_collaborative_doc_editing.common.BaseResponse;
 import com.project.realtime_collaborative_doc_editing.dto.DocumentReqDto;
+import com.project.realtime_collaborative_doc_editing.exceptions.DocumentNotFoundException;
 import com.project.realtime_collaborative_doc_editing.exceptions.PermissionNotGrantedException;
 import com.project.realtime_collaborative_doc_editing.exceptions.UserNotFoundException;
 import com.project.realtime_collaborative_doc_editing.model.DocumentDetails;
@@ -11,6 +12,7 @@ import com.project.realtime_collaborative_doc_editing.repository.DocumentReposit
 import com.project.realtime_collaborative_doc_editing.repository.UserRepository;
 import com.project.realtime_collaborative_doc_editing.service.DocumentService;
 import com.project.realtime_collaborative_doc_editing.service.JwtService;
+import jakarta.mail.Header;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -102,9 +104,9 @@ public class DocumentServiceImpl implements DocumentService {
             baseResponse.setStatusCode(HttpStatus.OK.toString());
         }else{
             System.out.println("----------> API is making a Db call.");
-            Optional<DocumentDetails> documentDetailsOpt = documentRepository.findById(documentId);
+            Optional<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentId(documentId);
             if(documentDetailsOpt.isEmpty()){
-                throw new RuntimeException("Document not found.");
+                throw new DocumentNotFoundException("Document not found with given document Id..",HttpStatus.NOT_FOUND);
             }
             if(!Objects.isNull(documentDetailsOpt)){
                 redisService.setIntoRedis(documentId, documentDetailsOpt.get(),(long)30*60*60);
@@ -156,12 +158,59 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public BaseResponse editDocument(String documentId, DocumentReqDto documentReqDto) {
-        return null;
+        BaseResponse baseResponse  = new BaseResponse();
+        Optional<DocumentDetails> documentDetailsOpt = documentRepository.findById(documentId);
+        if(documentDetailsOpt.isEmpty()){
+            throw new DocumentNotFoundException("Document not found by the given Document ID",HttpStatus.NOT_FOUND);
+        }
+        DocumentDetails documentDetails = documentDetailsOpt.get();
+        String accessToken = httpServletRequest.getHeader("Authorization");
+        String tokenWithoutBearer = accessToken.substring(7);
+        String username = jwtService.extractUsername(tokenWithoutBearer);
+        if(documentDetails.getUsersCanEdit().contains(username)){
+            if(!Objects.isNull(documentReqDto.getDocumentTitle())){
+                documentDetails.setDocumentTitle(documentReqDto.getDocumentTitle());
+            }
+            documentDetails.setLastEditedAt(new Date());
+            documentDetails.setLastEditedBy(username);
+            documentDetails.setDocumentDescription(documentReqDto.getDocumentDescription());
+            documentRepository.save(documentDetails);
+            baseResponse.setPayload(documentDetails);
+            baseResponse.setMessage("Document edited Successfully.");
+            baseResponse.setSuccess(true);
+            baseResponse.setStatusCode(HttpStatus.OK.toString());
+            return baseResponse;
+        }
+        baseResponse.setPayload(documentDetails);
+        baseResponse.setMessage("You don't have access to edit this Document.");
+        baseResponse.setSuccess(false);
+        baseResponse.setStatusCode(HttpStatus.FORBIDDEN.toString());
+        return  baseResponse;
     }
 
     @Override
     public BaseResponse deleteDocument(String documentId) {
-        return null;
+        BaseResponse baseResponse = new BaseResponse();
+        Optional<DocumentDetails> documentDetailsOpt = documentRepository.findByDocumentId(documentId);
+        if(documentDetailsOpt.isEmpty()){
+            throw new DocumentNotFoundException("Document not found by the given Document ID",HttpStatus.NOT_FOUND);
+        }
+        DocumentDetails documentDetails = documentDetailsOpt.get();
+        String accessToken = httpServletRequest.getHeader("Authorization");
+        String tokenWithoutBearer = accessToken.substring(7);
+        String username = jwtService.extractUsername(tokenWithoutBearer);
+        System.out.println("-----------> username : "+username);
+        System.out.println("-----------> createdBy : "+documentDetails.getDocumentCreatedBy());
+        if(Objects.equals(username,documentDetails.getDocumentCreatedBy())){
+            documentRepository.delete(documentDetails);
+            baseResponse.setMessage("Document deleted Successfully.");
+            baseResponse.setSuccess(true);
+            baseResponse.setStatusCode(HttpStatus.OK.toString());
+        }
+        baseResponse.setMessage("You don't have permission to delete this Document.");
+        baseResponse.setSuccess(false);
+        baseResponse.setStatusCode(HttpStatus.FORBIDDEN.toString());
+        return baseResponse;
     }
 
     @Override
