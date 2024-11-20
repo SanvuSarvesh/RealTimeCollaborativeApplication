@@ -1,24 +1,26 @@
 package com.project.realtime_collaborative_doc_editing.config;
 
-import com.project.realtime_collaborative_doc_editing.model.DocumentDetails;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@AllArgsConstructor
+//@NoArgsConstructor(force = true)
 public class KafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
 
     private final KafkaTemplate<String,String> kafkaTemplate;
-
+//    public KafkaProducer(){
+//
+//    }
     @Value("spring.kafka.topic.name")
     private String topic;
 
@@ -27,6 +29,11 @@ public class KafkaProducer {
         kafkaTemplate.send("topic001",message);
     }
 
+    public static void main(String[] args) {
+        String msg = "Hello Hi bye bye";
+        KafkaProducer kafkaProducer = new KafkaProducer(new KafkaTemplate<>());
+        kafkaProducer.sendMessage(msg);
+    }
 
 // this set of code is for, if we want to send Json object, we can use this in Rest API(Post/Put method is needed)
 //    need a separate topic for this which will consume type of DocumentDetails

@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 .requestMatchers(POST, "/user/v1/auth/authenticate").permitAll() // // Allow everyone to access the login endpoint
                                 .requestMatchers(PUT, "/user/v1/auth/update-password").permitAll() // Allow user to update his/her password
                                 .requestMatchers(GET, "/test/**").permitAll() // to allow all the free test APIs
+                                .requestMatchers(POST,"/test/hashmap").permitAll()
                                 .requestMatchers("/user/v1/management/**").hasAnyRole(ADMIN.name(), MEMBER.name())
                                 .requestMatchers(GET, "/user/v1/management/**")
                                 .hasAnyAuthority(ADMIN_READ.name(), MEMBER_READ.name())

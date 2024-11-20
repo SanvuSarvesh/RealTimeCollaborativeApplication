@@ -17,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "documents")
+
 public class DocumentDetails {
 
     @Id

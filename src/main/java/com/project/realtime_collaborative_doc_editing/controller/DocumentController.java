@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class DocumentController {
 
     @Autowired
-    private final DocumentServiceImpl documentService;
+    private  DocumentServiceImpl documentService;
 
     private final Logger Logger = LoggerFactory.getLogger(DocumentController.class);
 
